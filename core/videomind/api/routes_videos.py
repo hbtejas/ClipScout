@@ -4,7 +4,7 @@ import uuid
 import httpx
 from pathlib import Path
 from typing import Optional, List
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException, BackgroundTasks
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException, BackgroundTasks, Request
 from pydantic import BaseModel
 from videomind.paths import get_cache_dir
 from videomind.config import settings
@@ -42,8 +42,12 @@ async def download_url(url: str, output_path: Path) -> None:
             ydl.download([url])
         return
 
-    # Direct HTTP download
-    async with httpx.AsyncClient(follow_redirects=True, timeout=120.0) as client:
+    # Direct HTTP download with standard browser headers
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept": "*/*",
+    }
+    async with httpx.AsyncClient(headers=headers, follow_redirects=True, timeout=120.0) as client:
         async with client.stream("GET", url) as response:
             if response.status_code != 200:
                 raise HTTPException(status_code=400, detail=f"Failed to fetch video URL: HTTP {response.status_code}")
@@ -53,46 +57,74 @@ async def download_url(url: str, output_path: Path) -> None:
 
 @router.post("")
 async def ingest_video(
-    file: Optional[UploadFile] = File(None),
-    url: Optional[str] = Form(None),
-    analyzers: Optional[str] = Form(None),  # comma-separated string if form data
-    chunking_mode: Optional[str] = Form("fixed_interval"),
-    interval_s: Optional[float] = Form(30.0),
-    body: Optional[IngestUrlRequest] = None,
+    request: Request,
 ):
+    content_type = request.headers.get("content-type", "")
     analyzers_list = ["transcript"]
     target_url = None
-    mode = chunking_mode or "fixed_interval"
-    interval = interval_s or 30.0
+    mode = "fixed_interval"
+    interval = 30.0
+    file_upload: Optional[UploadFile] = None
+    raw_file_bytes: Optional[bytes] = None
+    filename: Optional[str] = None
 
-    if body:
-        target_url = body.url
-        if body.analyzers:
-            analyzers_list = body.analyzers
-        if body.chunking_mode:
-            mode = body.chunking_mode
-        if body.interval_s:
-            interval = body.interval_s
-    elif url:
-        target_url = url
-        if analyzers:
-            analyzers_list = [a.strip() for a in analyzers.split(",") if a.strip()]
+    if "application/json" in content_type:
+        try:
+            body = await request.json()
+            if isinstance(body, dict):
+                target_url = body.get("url")
+                if body.get("analyzers"):
+                    analyzers_list = body.get("analyzers")
+                if body.get("chunking_mode"):
+                    mode = body.get("chunking_mode")
+                if body.get("interval_s"):
+                    interval = float(body.get("interval_s"))
+        except Exception:
+            pass
+    else:
+        try:
+            form = await request.form()
+            target_url = form.get("url")
+            analyzers_val = form.get("analyzers")
+            if analyzers_val and isinstance(analyzers_val, str):
+                analyzers_list = [a.strip() for a in analyzers_val.split(",") if a.strip()]
+            if form.get("chunking_mode"):
+                mode = str(form.get("chunking_mode"))
+            if form.get("interval_s"):
+                try:
+                    interval = float(form.get("interval_s"))
+                except ValueError:
+                    pass
+            form_file = form.get("file")
+            if isinstance(form_file, UploadFile):
+                file_upload = form_file
+                filename = form_file.filename
+                raw_file_bytes = await form_file.read()
+        except Exception:
+            pass
+
+    # Fallback to query params if still not found
+    if not target_url and not file_upload:
+        query_url = request.query_params.get("url")
+        if query_url:
+            target_url = query_url
+
+    if not file_upload and not target_url:
+        raise HTTPException(status_code=400, detail="Provide either a video file upload or a url parameter")
 
     video_id = str(uuid.uuid4())[:8]
     cache_dir = get_cache_dir()
 
-    if file:
-        file_ext = Path(file.filename or "video.mp4").suffix or ".mp4"
+    if file_upload and raw_file_bytes:
+        file_ext = Path(filename or "video.mp4").suffix or ".mp4"
         dest_path = cache_dir / f"{video_id}{file_ext}"
-        content = await file.read()
         with open(dest_path, "wb") as f:
-            f.write(content)
+            f.write(raw_file_bytes)
         
         # Determine content hash ID for idempotency
         content_hash = compute_file_hash(dest_path)
         canonical_path = cache_dir / f"{content_hash}{file_ext}"
         if canonical_path.exists():
-            # Already exists in cache
             dest_path.unlink()
             final_path = canonical_path
             video_id = content_hash
