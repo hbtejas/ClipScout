@@ -121,8 +121,9 @@ export default function LandingPage() {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-black text-white selection:bg-white selection:text-black font-sans">
-      {/* Background Ambient Video & Glass Layer */}
-      <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden bg-black" style={{ maxHeight: '100vh' }}>
+      {/* Background Ambient Video & Animated Aurora Layer */}
+      <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden bg-black select-none" style={{ maxHeight: '100vh' }}>
+        {/* Ambient Looping Video */}
         <video 
           autoPlay 
           loop 
@@ -131,8 +132,19 @@ export default function LandingPage() {
           className="h-full w-full object-cover opacity-20"
           src="https://l4wlsi8vxy8hre4v.public.blob.vercel-storage.com/video/glass-animation-5-f0gPcjmKFIV3ot5MGOdNy2r4QHBoXt.mp4"
         />
-        <div className="absolute inset-0 bg-grid-pattern opacity-40 pointer-events-none" />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/50 to-black pointer-events-none" />
+
+        {/* Smooth Drifting Multi-Color Aurora Orbs */}
+        <div className="absolute -top-[15%] left-[10%] w-[550px] h-[550px] rounded-full bg-gradient-to-br from-indigo-500/25 via-purple-600/20 to-transparent blur-[120px] animate-aurora-1 pointer-events-none" />
+        <div className="absolute top-[35%] right-[5%] w-[600px] h-[600px] rounded-full bg-gradient-to-br from-cyan-500/20 via-blue-600/15 to-transparent blur-[140px] animate-aurora-2 pointer-events-none" />
+        <div className="absolute -bottom-[10%] left-[30%] w-[500px] h-[500px] rounded-full bg-gradient-to-tr from-violet-600/20 via-fuchsia-500/15 to-transparent blur-[130px] animate-aurora-3 pointer-events-none" />
+
+        {/* Vertical Luminous Light Beams */}
+        <div className="absolute left-[20%] top-0 w-[1px] h-[70vh] bg-gradient-to-b from-transparent via-white/20 to-transparent animate-beam-1 pointer-events-none" />
+        <div className="absolute right-[25%] top-0 w-[1px] h-[80vh] bg-gradient-to-b from-transparent via-cyan-400/25 to-transparent animate-beam-2 pointer-events-none" />
+
+        {/* Animated Grid & Scanlines */}
+        <div className="absolute inset-0 bg-grid-pattern opacity-35 animate-grid-glow pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/40 to-black pointer-events-none" />
         <div className="absolute inset-0" style={{ boxShadow: 'inset 0 100px 120px 100px rgb(0, 0, 0)' }} />
       </div>
 
