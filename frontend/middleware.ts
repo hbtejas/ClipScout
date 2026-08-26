@@ -2,19 +2,20 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import type { Database } from '@/types/supabase';
 
+const DEFAULT_SUPABASE_URL = 'https://bgxccwyeohgketwugoyx.supabase.co';
+const DEFAULT_SUPABASE_ANON_KEY = 'sb_publishable_E7g_uVOeStwDBm1Wk-o8ng_WCwxkJXV';
+
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
   });
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseUrl =
+    process.env.NEXT_PUBLIC_SUPABASE_URL || DEFAULT_SUPABASE_URL;
   const supabaseKey =
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!supabaseUrl || !supabaseKey || supabaseUrl.includes('placeholder')) {
-    return supabaseResponse;
-  }
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+    DEFAULT_SUPABASE_ANON_KEY;
 
   const supabase = createServerClient<Database>(
     supabaseUrl,
