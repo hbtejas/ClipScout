@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Lock, Mail, ArrowRight, Loader2, CheckCircle2 } from 'lucide-react';
+import { AnimatedBackground } from '@/components/ui/animated-background';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -68,9 +69,8 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col justify-center items-center p-6 relative overflow-hidden font-sans">
-      {/* Grid background */}
-      <div className="fixed inset-0 pointer-events-none bg-grid-pattern opacity-40" />
-      <div className="fixed inset-0 pointer-events-none bg-gradient-to-b from-transparent via-black/20 to-black" />
+      {/* Animated Smooth Background */}
+      <AnimatedBackground showVideo={false} particleCount={25} />
 
       <div className="relative z-10 w-full max-w-sm space-y-7">
         {/* Brand Header */}

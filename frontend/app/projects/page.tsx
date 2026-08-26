@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Project } from '@/types';
 import { Folder, Plus, ArrowRight, BookOpen, X } from 'lucide-react';
+import { AnimatedBackground } from '@/components/ui/animated-background';
 
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -53,9 +54,9 @@ export default function ProjectsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col">
-      {/* Grid background */}
-      <div className="fixed inset-0 pointer-events-none bg-grid-pattern opacity-40 z-0" />
+    <div className="min-h-screen bg-black text-white flex flex-col relative overflow-hidden">
+      {/* Animated Smooth Background */}
+      <AnimatedBackground showVideo={false} particleCount={25} />
 
       {/* Top Nav */}
       <header className="relative z-20 border-b border-white/10 bg-black/70 backdrop-blur-2xl sticky top-0">

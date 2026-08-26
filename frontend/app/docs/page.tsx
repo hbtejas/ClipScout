@@ -1,12 +1,12 @@
 import Link from 'next/link';
 import { ArrowLeft, BookOpen, Layers, Server, Sparkles, Terminal, Code, Cpu, ShieldCheck } from 'lucide-react';
+import { AnimatedBackground } from '@/components/ui/animated-background';
 
 export default function DocsPage() {
   return (
     <div className="min-h-screen bg-black text-white selection:bg-white selection:text-black flex flex-col font-sans relative overflow-x-hidden">
-      {/* Background grid */}
-      <div className="fixed inset-0 pointer-events-none z-0 bg-grid-pattern opacity-50" />
-      <div className="fixed inset-0 pointer-events-none z-0 bg-gradient-to-b from-transparent via-black/40 to-black" />
+      {/* Animated Smooth Background */}
+      <AnimatedBackground showVideo={false} particleCount={30} />
 
       {/* Top Header */}
       <header className="border-b border-white/10 bg-black/80 backdrop-blur-2xl sticky top-0 z-30">
