@@ -26,11 +26,11 @@ export function UploadDialog({ isOpen, onClose, projectId, onVideoCreated }: Upl
 
   useEffect(() => {
     if (isOpen) {
-      coreClient.getAnalyzers()
+      coreClient
+        .getAnalyzers()
         .then((res) => {
           setAnalyzers(res.analyzers);
-          // Set default selected
-          const readyOnes = res.analyzers.filter(a => a.available).map(a => a.id);
+          const readyOnes = res.analyzers.filter((a) => a.available).map((a) => a.id);
           if (readyOnes.includes('transcript')) {
             setSelectedAnalyzers(['transcript']);
           } else if (readyOnes.length > 0) {
@@ -38,10 +38,12 @@ export function UploadDialog({ isOpen, onClose, projectId, onVideoCreated }: Upl
           }
         })
         .catch(() => {
-          // Default fallback
           setAnalyzers([
             { id: 'transcript', label: 'Audio Transcription (Whisper)', requires: 'audio', available: true },
             { id: 'default_video', label: 'Visual Scene & Action (VLM)', requires: 'frames', available: true },
+            { id: 'people', label: 'People & Appearance (VLM)', requires: 'frames', available: true },
+            { id: 'object_detection', label: 'Object Detection (YOLO Gate + VLM)', requires: 'frames', available: true },
+            { id: 'ocr', label: 'On-Screen Text & OCR (VLM)', requires: 'frames', available: true },
           ]);
         });
     }
@@ -51,7 +53,7 @@ export function UploadDialog({ isOpen, onClose, projectId, onVideoCreated }: Upl
 
   const toggleAnalyzer = (id: string) => {
     if (selectedAnalyzers.includes(id)) {
-      setSelectedAnalyzers(selectedAnalyzers.filter(a => a !== id));
+      setSelectedAnalyzers(selectedAnalyzers.filter((a) => a !== id));
     } else {
       setSelectedAnalyzers([...selectedAnalyzers, id]);
     }
@@ -68,8 +70,8 @@ export function UploadDialog({ isOpen, onClose, projectId, onVideoCreated }: Upl
 
       if (tab === 'upload') {
         if (!file) throw new Error('Please select a video file to upload');
-        if (!videoTitle) videoTitle = file.name.replace(/\.[^/.]+$/, "");
-        
+        if (!videoTitle) videoTitle = file.name.replace(/\.[^/.]+$/, '');
+
         const fd = new FormData();
         fd.append('file', file);
         fd.append('analyzers', selectedAnalyzers.join(','));
@@ -95,7 +97,7 @@ export function UploadDialog({ isOpen, onClose, projectId, onVideoCreated }: Upl
         core_video_id: coreRes.video_id,
         title: videoTitle,
         source_type: tab,
-        source_url: tab === 'url' ? url.trim() : (file?.name || ''),
+        source_url: tab === 'url' ? url.trim() : file?.name || '',
         status: 'queued',
         analysis_stage: 'chunking',
         analyzers_used: selectedAnalyzers,
@@ -114,28 +116,31 @@ export function UploadDialog({ isOpen, onClose, projectId, onVideoCreated }: Upl
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl animate-in fade-in duration-200 font-sans">
+      <div className="bg-neutral-950 border border-white/10 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
           <div className="flex items-center space-x-2">
-            <Film className="w-5 h-5 text-indigo-400" />
-            <h2 className="text-base font-semibold text-white">Ingest New Video</h2>
+            <Film className="w-5 h-5 text-white" />
+            <h2 className="text-base font-semibold text-white tracking-tight">Ingest Video to Workspace</h2>
           </div>
-          <button onClick={onClose} className="p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition">
+          <button
+            onClick={onClose}
+            className="p-1 rounded-lg hover:bg-neutral-900 text-neutral-400 hover:text-white transition"
+          >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-slate-800 bg-slate-950/40">
+        <div className="flex border-b border-white/10 bg-black/40">
           <button
             type="button"
             onClick={() => setTab('upload')}
             className={`flex-1 py-3 text-xs font-medium flex items-center justify-center space-x-2 border-b-2 transition ${
               tab === 'upload'
-                ? 'border-indigo-500 text-indigo-400 bg-indigo-500/5'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
+                ? 'border-white text-white bg-white/5'
+                : 'border-transparent text-neutral-400 hover:text-white'
             }`}
           >
             <Upload className="w-4 h-4" />
@@ -146,8 +151,8 @@ export function UploadDialog({ isOpen, onClose, projectId, onVideoCreated }: Upl
             onClick={() => setTab('url')}
             className={`flex-1 py-3 text-xs font-medium flex items-center justify-center space-x-2 border-b-2 transition ${
               tab === 'url'
-                ? 'border-indigo-500 text-indigo-400 bg-indigo-500/5'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
+                ? 'border-white text-white bg-white/5'
+                : 'border-transparent text-neutral-400 hover:text-white'
             }`}
           >
             <LinkIcon className="w-4 h-4" />
@@ -156,89 +161,89 @@ export function UploadDialog({ isOpen, onClose, projectId, onVideoCreated }: Upl
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {error && (
-            <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs">
+            <div className="p-3 rounded-xl bg-red-950/60 border border-red-800 text-red-300 text-xs">
               {error}
             </div>
           )}
 
-          <div>
-            <label className="block text-xs font-medium text-slate-300 mb-1.5">Video Title (Optional)</label>
+          <div className="space-y-1.5">
+            <label className="block text-xs font-medium text-neutral-300">Video Title (Optional)</label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. Keynote Presentation 2026"
-              className="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500"
+              placeholder="e.g. Q3 Earnings Presentation"
+              className="w-full bg-black border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-neutral-600 focus:outline-none focus:border-white transition"
             />
           </div>
 
           {tab === 'upload' ? (
-            <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1.5">Select Video File</label>
-              <div className="border-2 border-dashed border-slate-800 hover:border-indigo-500/50 rounded-xl p-6 text-center cursor-pointer transition bg-slate-950/40 relative">
+            <div className="space-y-1.5">
+              <label className="block text-xs font-medium text-neutral-300">Select Video File</label>
+              <div className="border-2 border-dashed border-white/10 hover:border-white/30 rounded-xl p-6 text-center cursor-pointer transition bg-black relative">
                 <input
                   type="file"
                   accept="video/*"
                   onChange={(e) => setFile(e.target.files?.[0] || null)}
                   className="absolute inset-0 opacity-0 cursor-pointer"
                 />
-                <Upload className="w-8 h-8 text-indigo-400 mx-auto mb-2" />
-                <p className="text-xs text-slate-300 font-medium">
+                <Upload className="w-7 h-7 text-neutral-400 mx-auto mb-2" />
+                <p className="text-xs text-neutral-200 font-medium">
                   {file ? file.name : 'Click or drag video file here'}
                 </p>
-                <p className="text-[10px] text-slate-500 mt-1">MP4, MOV, MKV, WebM up to 4GB</p>
+                <p className="text-[10px] text-neutral-500 mt-1">MP4, MOV, MKV, WebM up to 4GB</p>
               </div>
             </div>
           ) : (
-            <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1.5">Video URL</label>
+            <div className="space-y-1.5">
+              <label className="block text-xs font-medium text-neutral-300">Video URL</label>
               <input
                 type="url"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 placeholder="https://www.youtube.com/watch?v=..."
-                className="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500"
+                className="w-full bg-black border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-neutral-600 focus:outline-none focus:border-white transition"
                 required
               />
             </div>
           )}
 
           {/* Chunking Mode & Interval */}
-          <div className="grid grid-cols-2 gap-3 pt-1">
-            <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1.5">Chunking Mode</label>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <label className="block text-xs font-medium text-neutral-300">Chunking Mode</label>
               <select
                 value={chunkingMode}
                 onChange={(e) => setChunkingMode(e.target.value)}
-                className="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-indigo-500"
+                className="w-full bg-black border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-white transition"
               >
                 <option value="fixed_interval">Fixed Interval</option>
                 <option value="fused_signals">Fused Signals (Cuts + Audio)</option>
               </select>
             </div>
-            <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1.5">Interval (seconds)</label>
+            <div className="space-y-1.5">
+              <label className="block text-xs font-medium text-neutral-300">Interval (seconds)</label>
               <input
                 type="number"
                 min={5}
                 max={300}
                 value={intervalSeconds}
                 onChange={(e) => setIntervalSeconds(Number(e.target.value))}
-                className="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-indigo-500"
+                className="w-full bg-black border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-white transition"
               />
             </div>
           </div>
 
           {/* Analyzers Checklist */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-xs font-medium text-slate-300 flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-medium text-neutral-300 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-white" />
                 <span>Multimodal Analyzers</span>
               </label>
-              <span className="text-[10px] text-slate-500">Fetched from Core API</span>
+              <span className="text-[10px] text-neutral-500 font-mono">Qdrant Vector Indexing</span>
             </div>
             <div className="space-y-1.5 max-h-36 overflow-y-auto pr-1">
               {analyzers.map((a) => (
@@ -246,8 +251,8 @@ export function UploadDialog({ isOpen, onClose, projectId, onVideoCreated }: Upl
                   key={a.id}
                   className={`flex items-center justify-between p-2.5 rounded-xl border text-xs cursor-pointer transition ${
                     selectedAnalyzers.includes(a.id)
-                      ? 'bg-indigo-950/40 border-indigo-800/80 text-white'
-                      : 'bg-slate-950/40 border-slate-800/60 text-slate-400 hover:border-slate-700'
+                      ? 'bg-neutral-900 border-white/30 text-white'
+                      : 'bg-black border-white/10 text-neutral-400 hover:border-white/20'
                   }`}
                 >
                   <div className="flex items-center space-x-2.5">
@@ -255,11 +260,11 @@ export function UploadDialog({ isOpen, onClose, projectId, onVideoCreated }: Upl
                       type="checkbox"
                       checked={selectedAnalyzers.includes(a.id)}
                       onChange={() => toggleAnalyzer(a.id)}
-                      className="rounded border-slate-700 text-indigo-600 focus:ring-0 bg-slate-900"
+                      className="rounded border-white/20 text-white focus:ring-0 bg-black"
                     />
                     <span>{a.label}</span>
                   </div>
-                  <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-slate-900 text-slate-400 border border-slate-800">
+                  <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-neutral-900 text-neutral-400 border border-white/10">
                     {a.requires}
                   </span>
                 </label>
@@ -268,18 +273,18 @@ export function UploadDialog({ isOpen, onClose, projectId, onVideoCreated }: Upl
           </div>
 
           {/* Footer actions */}
-          <div className="flex items-center justify-end space-x-3 pt-3 border-t border-slate-800">
+          <div className="flex items-center justify-end space-x-3 pt-3 border-t border-white/10">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 transition"
+              className="px-4 py-2 rounded-xl text-xs font-medium text-neutral-400 hover:text-white transition"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2.5 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 transition shadow-lg shadow-indigo-500/20 disabled:opacity-50 flex items-center space-x-2"
+              className="px-5 py-2.5 rounded-full text-xs font-semibold text-black bg-white hover:bg-neutral-200 transition shadow-lg shadow-white/10 disabled:opacity-50 flex items-center space-x-2"
             >
               {isSubmitting ? (
                 <>
