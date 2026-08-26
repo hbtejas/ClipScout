@@ -2,7 +2,7 @@
 
 **Live Production App**: [https://clipscoutt.vercel.app](https://clipscoutt.vercel.app)
 
-**ClipScout** is a full-stack, multimodal **Conversational Video Retrieval-Augmented Generation (Video RAG)** platform inspired by [FalconVQA](https://falconvqa.vercel.app/). It splits video footage into structured segments, runs audio-visual analysis (speech transcription, visual scene description, OCR, object and entity detection), stores dense embeddings in a local vector database, and allows users to chat with an AI agent that returns **grounded answers citing exact `m:ss` timestamps with playable video clips inline**.
+**ClipScout** is a full-stack, multimodal **Conversational Video Retrieval-Augmented Generation (Video RAG)** . It splits video footage into structured segments, runs audio-visual analysis (speech transcription, visual scene description, OCR, object and entity detection), stores dense embeddings in a local vector database, and allows users to chat with an AI agent that returns **grounded answers citing exact `m:ss` timestamps with playable video clips inline**.
 
 ---
 
