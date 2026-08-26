@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Bot, User, Wrench, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Bot, User, Wrench, Sparkles, CheckCircle2, Clock } from 'lucide-react';
 
 interface MessageProps {
   role: 'user' | 'assistant' | 'tool';
@@ -33,9 +33,11 @@ export function ChatMessage({ role, content, toolInvocations, onTimestampClick }
           key={`${match.index}-${timeStr}`}
           type="button"
           onClick={() => onTimestampClick?.(totalSec)}
-          className="inline-flex items-center px-1.5 py-0.5 mx-0.5 rounded bg-indigo-500/20 text-indigo-300 font-mono text-[11px] font-semibold border border-indigo-500/40 hover:bg-indigo-500/30 transition cursor-pointer"
+          className="inline-flex items-center gap-1 px-2 py-0.5 mx-1 rounded-full bg-white/10 text-white font-mono text-[10px] font-semibold border border-white/20 hover:bg-white hover:text-black transition cursor-pointer group"
+          title={`Jump video to ${timeStr}`}
         >
-          ⏱️ {timeStr}
+          <Clock className="w-2.5 h-2.5 group-hover:rotate-45 transition" />
+          <span>{timeStr}</span>
         </button>
       );
       lastIndex = match.index + match[0].length;
@@ -49,24 +51,24 @@ export function ChatMessage({ role, content, toolInvocations, onTimestampClick }
   };
 
   return (
-    <div className={`flex gap-3.5 ${isUser ? 'justify-end' : 'justify-start'}`}>
+    <div className={`flex gap-3 ${isUser ? 'justify-end' : 'justify-start'}`}>
       {!isUser && (
-        <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center text-white shrink-0 shadow-md shadow-indigo-500/20">
-          <Bot className="w-4 h-4" />
+        <div className="w-8 h-8 rounded-xl bg-neutral-900 border border-white/20 flex items-center justify-center text-white shrink-0 shadow-lg shadow-white/5">
+          <Bot className="w-4 h-4 text-white" />
         </div>
       )}
 
-      <div className={`space-y-2 max-w-[80%] ${isUser ? 'items-end' : 'items-start'}`}>
+      <div className={`space-y-2 max-w-[85%] ${isUser ? 'items-end' : 'items-start'}`}>
         {/* Tool execution indicators */}
         {toolInvocations && toolInvocations.length > 0 && (
           <div className="space-y-1">
             {toolInvocations.map((tool, idx) => (
               <div
                 key={idx}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900/90 border border-slate-800 text-[11px] text-slate-400 font-mono"
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-neutral-900 border border-white/10 text-[11px] text-neutral-400 font-mono"
               >
-                <Wrench className="w-3 h-3 text-indigo-400 animate-spin" />
-                <span>Calling: {tool.toolName}</span>
+                <Wrench className="w-3 h-3 text-white animate-spin" />
+                <span>Tool: <strong className="text-white">{tool.toolName}</strong></span>
               </div>
             ))}
           </div>
@@ -77,8 +79,8 @@ export function ChatMessage({ role, content, toolInvocations, onTimestampClick }
           <div
             className={`px-4 py-3 rounded-2xl text-xs leading-relaxed ${
               isUser
-                ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 rounded-tr-sm'
-                : 'bg-slate-900 border border-slate-800 text-slate-200 shadow-lg rounded-tl-sm'
+                ? 'bg-white text-black font-medium shadow-xl rounded-tr-sm'
+                : 'bg-neutral-950/90 border border-white/10 text-neutral-200 shadow-2xl backdrop-blur-xl rounded-tl-sm'
             }`}
           >
             <div className="whitespace-pre-wrap">{renderFormattedContent(content)}</div>
@@ -87,8 +89,8 @@ export function ChatMessage({ role, content, toolInvocations, onTimestampClick }
       </div>
 
       {isUser && (
-        <div className="w-8 h-8 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 shrink-0">
-          <User className="w-4 h-4" />
+        <div className="w-8 h-8 rounded-xl bg-neutral-900 border border-white/10 flex items-center justify-center text-white shrink-0">
+          <User className="w-4 h-4 text-neutral-400" />
         </div>
       )}
     </div>
