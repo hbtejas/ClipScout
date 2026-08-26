@@ -55,6 +55,62 @@ body {
 a,
 button {
   transition-property: color, background-color, border-color, opacity, transform, box-shadow;
-  transition-duration: 200ms;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 250ms;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
 }
+
+/* ── Custom Smooth Keyframe Animations ──────────────── */
+@keyframes float-smooth {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes shimmer-smooth {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes halo-breathe {
+  0%, 100% {
+    opacity: 0.25;
+    transform: scale(0.96);
+  }
+  50% {
+    opacity: 0.45;
+    transform: scale(1.04);
+  }
+}
+
+.animate-float-1 {
+  animation: float-smooth 5s ease-in-out infinite;
+}
+
+.animate-float-2 {
+  animation: float-smooth 5.4s ease-in-out 0.7s infinite;
+}
+
+.animate-float-3 {
+  animation: float-smooth 4.8s ease-in-out 1.4s infinite;
+}
+
+.animate-float-4 {
+  animation: float-smooth 5.2s ease-in-out 2.1s infinite;
+}
+
+.animate-shimmer {
+  background-size: 200% auto;
+  animation: shimmer-smooth 4s linear infinite;
+}
+
+.animate-halo {
+  animation: halo-breathe 6s ease-in-out infinite;
+}
+
