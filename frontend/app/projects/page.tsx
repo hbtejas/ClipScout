@@ -72,6 +72,9 @@ export default function ProjectsPage() {
               <BookOpen className="w-3.5 h-3.5" />
               <span>Docs</span>
             </Link>
+            <Link href="/login" className="text-neutral-400 hover:text-white transition">
+              Sign In
+            </Link>
             <button
               onClick={() => setIsModalOpen(true)}
               className="px-4 py-2 rounded-full bg-white text-black hover:bg-neutral-200 font-semibold transition shadow-lg shadow-white/10 flex items-center gap-1.5"

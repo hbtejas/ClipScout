@@ -46,21 +46,8 @@ export async function middleware(request: NextRequest) {
   const isAuthRoute =
     request.nextUrl.pathname.startsWith('/login') ||
     request.nextUrl.pathname.startsWith('/signup');
-  const isProtectedRoute = request.nextUrl.pathname.startsWith('/projects');
 
-  // Handle protected route redirect while preserving response cookies
-  if (!user && isProtectedRoute) {
-    const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = '/login';
-    const redirectResponse = NextResponse.redirect(redirectUrl);
-    // Copy cookies from supabaseResponse so session state remains clean
-    supabaseResponse.cookies.getAll().forEach((cookie) => {
-      redirectResponse.cookies.set(cookie.name, cookie.value);
-    });
-    return redirectResponse;
-  }
-
-  // Handle authenticated user on auth routes
+  // Handle authenticated user on auth routes -> redirect to workspace
   if (user && isAuthRoute) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = '/projects';
